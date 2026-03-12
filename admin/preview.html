@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — EthicalHacking</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+/* ── Preview banner ── */
+.preview-banner {
+  background: #1a1408;
+  border-bottom: 2px solid var(--accent);
+  padding: 10px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.preview-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-label::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:.3; }
+}
+.preview-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-bright);
+  letter-spacing: .5px;
+}
+.preview-actions { display: flex; gap: 10px; }
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(160deg, #111420 0%, #0d0f14 60%);
+  border-bottom: 1px solid var(--border);
+  padding: 52px 48px 40px;
+  max-width: 960px; margin: 0 auto;
+}
+.breadcrumb {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 18px;
+}
+.breadcrumb a { color: var(--text-dim); text-decoration: none; }
+.breadcrumb a:hover { color: var(--accent); }
+.article-title {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: clamp(28px, 5vw, 52px);
+  color: var(--text-bright); letter-spacing: 1px; line-height: 1.1; margin-bottom: 14px;
+}
+.art-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+.art-meta-txt { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--text-dim); }
+
+/* ── Layout ── */
+.layout {
+  max-width: 960px; margin: 0 auto; padding: 48px 48px 80px;
+  display: grid; grid-template-columns: 1fr 240px; gap: 48px; align-items: start;
+}
+
+/* ── Article ── */
+.article h2 {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 24px;
+  color: var(--text-bright); letter-spacing: .5px;
+  margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.article h2::before {
+  content: ''; display: inline-block; width: 4px; height: 20px;
+  background: var(--accent); border-radius: 2px; flex-shrink: 0;
+}
+.article h3 { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 18px; color: var(--accent); margin: 24px 0 8px; }
+.article p  { margin-bottom: 16px; }
+.article a  { color: var(--accent2); text-decoration: underline; text-underline-offset: 3px; }
+.article a:hover { color: var(--accent); }
+.article code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--surface2); color: #c6d3f7; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); }
+.article pre  { background: var(--code-bg); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 6px; padding: 18px 20px; overflow-x: auto; margin: 20px 0; }
+.article pre code { background: none; border: none; padding: 0; font-size: 13.5px; line-height: 1.7; color: var(--text); }
+.article strong { color: var(--text-bright); }
+.article em { color: var(--text-dim); font-style: italic; }
+.article ul, .article ol { padding-left: 24px; margin-bottom: 16px; }
+.article li { margin-bottom: 6px; }
+.article blockquote { border-left: 3px solid var(--accent); padding: 10px 18px; margin: 20px 0; background: var(--surface); border-radius: 0 4px 4px 0; color: var(--text-dim); font-style: italic; }
+
+/* Rich content */
+.article .codeblock { background: var(--code-bg); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 6px; margin: 24px 0; overflow: hidden; }
+.article .codeblock-header { background: #0f1118; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.article .codeblock-lang { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.article .codeblock-dots { display: flex; gap: 6px; }
+.article .codeblock-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.article .codeblock-dots span:nth-child(1) { background: #e05c5c; }
+.article .codeblock-dots span:nth-child(2) { background: var(--accent); }
+.article .codeblock-dots span:nth-child(3) { background: #4ec94e; }
+.article .codeblock pre { padding: 18px 20px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.7; border: none; margin: 0; }
+.article .kw  { color: #c792ea; } .article .ty  { color: #82aaff; } .article .fn  { color: #82cfff; }
+.article .str { color: #c3e88d; } .article .cm  { color: #546e7a; font-style: italic; }
+.article .cn  { color: var(--accent); } .article .num { color: #f78c6c; }
+.article .op  { color: #89ddff; } .article .va  { color: var(--text-bright); }
+.article .callout { padding: 16px 20px; border-radius: 4px; margin: 24px 0; display: flex; gap: 14px; align-items: flex-start; }
+.article .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.article .callout-body { flex: 1; }
+.article .callout-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.article .callout-text { font-size: 15px; line-height: 1.6; }
+.article .callout.note { background: #101a30; border-left: 3px solid var(--accent2); }
+.article .callout.note .callout-title { color: var(--accent2); }
+.article .callout.warn { background: #1e1408; border-left: 3px solid var(--accent); }
+.article .callout.warn .callout-title { color: var(--accent); }
+.article .callout.tip  { background: #0e1e0e; border-left: 3px solid #4ec94e; }
+.article .callout.tip  .callout-title { color: #4ec94e; }
+.article .steps { counter-reset: step; list-style: none; margin: 20px 0; }
+.article .steps li { counter-increment: step; display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-start; }
+.article .steps li::before { content: counter(step); font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; color: #0d0f14; background: var(--accent); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.article .gh-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 15px; }
+.article .gh-table th { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); background: #0f1118; padding: 10px 14px; border-bottom: 2px solid var(--accent); text-align: left; }
+.article .gh-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+.article .gh-table tr:hover td { background: var(--surface); }
+
+/* Sidebar */
+.sidebar { position: sticky; top: 130px; }
+.toc-link { display: block; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-dim); text-decoration: none; padding: 6px 0; border-bottom: 1px solid var(--border); transition: color .2s, padding-left .2s; }
+.toc-link:last-child { border-bottom: none; }
+.toc-link:hover { color: var(--accent); padding-left: 6px; }
+
+@media (max-width: 768px) {
+  .hero, .layout { padding: 32px 20px; }
+  .layout { grid-template-columns: 1fr; }
+  .preview-banner { padding: 10px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PREVIEW BANNER -->
+<div class="preview-banner">
+  <div>
+    <div class="preview-label">Live Preview</div>
+    <div class="preview-title" id="previewTitle">Untitled Article</div>
+  </div>
+  <div class="preview-actions">
+    <button class="btn btn-ghost" onclick="window.close()">✕ Close Preview</button>
+    <a class="btn btn-accent" id="editLink" href="#">← Back to Editor</a>
+  </div>
+</div>
+
+<!-- TOPBAR (decorative, shows site look) -->
+<div class="topbar">
+  <a class="logo" href="../index.html">Ethical<span>Hacking</span></a>
+  <nav class="nav">
+    <a href="../index.html">Tutorials</a>
+    <a href="../about.html">About</a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<div class="hero" id="heroSection"></div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <article class="article" id="articleBody"></article>
+  <aside class="sidebar" id="sidebarEl"></aside>
+</div>
+
+<footer><span>EthicalHacking</span> &nbsp;·&nbsp; Preview Mode — Not Published</footer>
+
+<script src="../js/store.js"></script>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const id     = params.get('id');
+
+  // Link back to editor
+  document.getElementById('editLink').href = id ? `edit-article.html?id=${id}` : 'edit-article.html';
+
+  // If we have a saved article ID, load it
+  if (id) {
+    const art = EH.getArticleById(id);
+    if (art) { renderArticle(art); return; }
+  }
+
+  // Otherwise try to load from sessionStorage (live preview from editor)
+  try {
+    const draft = JSON.parse(sessionStorage.getItem('eh_preview'));
+    if (draft) { renderArticle(draft); return; }
+  } catch {}
+
+  // Fallback
+  document.getElementById('heroSection').innerHTML =
+    `<p style="color:var(--text-dim);font-family:Rajdhani,sans-serif;">No article data found. Open this page from the editor.</p>`;
+
+  function renderArticle(art) {
+    document.title = (art.title || 'Untitled') + ' — Preview';
+    document.getElementById('previewTitle').textContent = art.title || 'Untitled';
+
+    const tagHtml = [art.difficulty, ...(art.tags || [])].filter(Boolean)
+      .map(t => `<span class="badge badge-${t}">${t}</span>`).join('');
+
+    document.getElementById('heroSection').innerHTML = `
+      <div class="breadcrumb"><a href="../index.html">Tutorials</a> &rsaquo; <span>${art.title || 'Draft'}</span></div>
+      <h1 class="article-title">${art.title || 'Untitled Article'}</h1>
+      <div class="art-meta">
+        ${tagHtml}
+        <span class="art-meta-txt">${art.duration || 0} min read</span>
+        <span class="art-meta-txt" style="color:var(--accent);font-weight:600;">[PREVIEW]</span>
+      </div>`;
+
+    document.getElementById('articleBody').innerHTML = art.content || '<p style="color:var(--text-dim);">No content yet.</p>';
+
+    // TOC from headings
+    const headings = document.querySelectorAll('.article h2, .article h3');
+    let tocHtml = '';
+    headings.forEach((h, i) => { h.id = 'h-' + i; tocHtml += `<a class="toc-link" href="#h-${i}">${h.textContent}</a>`; });
+    document.getElementById('sidebarEl').innerHTML = `
+      <div class="card">
+        <div class="card-header">In This Article</div>
+        <div class="card-body">${tocHtml || '<span style="font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text-dim);">No headings found.</span>'}</div>
+      </div>`;
+  }
+})();
+</script>
+</body>
+</html>

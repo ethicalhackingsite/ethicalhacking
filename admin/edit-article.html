@@ -168,6 +168,7 @@
           </label>
           <div style="display:flex;gap:10px;">
             <a class="btn btn-ghost" href="articles.html">Cancel</a>
+            <button class="btn btn-ghost" onclick="openPreview()">👁 Preview</button>
             <button class="btn btn-accent" onclick="saveArticle()">Save Article</button>
           </div>
         </div>
@@ -286,6 +287,23 @@ function insertLink() {
   const snippet = `<a href="${url}" target="_blank">${sel}</a>`;
   ta.value = ta.value.substring(0, s) + snippet + ta.value.substring(end);
   updatePreview();
+}
+
+function openPreview() {
+  const tags = document.getElementById('artTags').value
+    .split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const draft = {
+    id:         editId || '__preview__',
+    title:      document.getElementById('artTitle').value || 'Untitled',
+    moduleId:   document.getElementById('artModule').value,
+    difficulty: document.getElementById('artDifficulty').value,
+    tags,
+    duration:   parseInt(document.getElementById('artDuration').value) || 0,
+    content:    document.getElementById('contentEditor').value,
+    published:  false,
+  };
+  sessionStorage.setItem('eh_preview', JSON.stringify(draft));
+  window.open('preview.html' + (editId ? '?id=' + editId : ''), '_blank');
 }
 
 function saveArticle() {

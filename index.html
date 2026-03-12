@@ -91,7 +91,14 @@
   border:1px solid var(--border);display:flex;align-items:center;
   justify-content:center;font-size:14px;flex-shrink:0;
 }
-.t-card.done .t-icon { background:#1a3a1a;color:var(--green);border-color:#2a5a2a; }
+/* State-specific icons */
+.t-icon-done    { background:#1a3a1a;border-color:#2a5a2a;color:var(--green);font-size:15px;font-weight:700; }
+.t-icon-current { background:#1a1f3a;border-color:var(--accent2);color:var(--accent2);font-size:11px; }
+.t-icon-new     { position:relative; }
+.t-icon-new::after {
+  content:'';position:absolute;width:8px;height:8px;border-radius:50%;
+  border:2px solid var(--text-dim);
+}
 .t-title {
   font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;
   color:var(--text-bright);letter-spacing:.3px;
@@ -111,6 +118,7 @@
 .t-status { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase; }
 .s-done   { color:var(--green); }
 .s-new    { color:var(--accent); }
+.s-current{ color:var(--accent2); }
 .t-chev   { font-size:18px;color:var(--text-dim);transition:color .15s;line-height:1; }
 .t-card:hover .t-chev { color:var(--accent); }
 .empty-module {
@@ -168,7 +176,7 @@
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-eyebrow">// Complete Game Hacking Course</div>
-    <h1 class="hero-title" id="heroTitle">Learn<span class="hl">Game Hacking</span></h1>
+    <h1 class="hero-title" id="heroTitle">Learn to Hack<span class="hl">Game Memory</span></h1>
     <p class="hero-sub" id="heroSub">Loading…</p>
     <div class="hero-stats">
       <div class="stat"><span class="stat-num" id="statArticles">–</span><span class="stat-label">Tutorials</span></div>
@@ -229,6 +237,10 @@
   const allArts  = EH.getArticles({ published: true });
   const progress = EH.getProgress();
 
+  // Find first incomplete article (the "current" one)
+  const firstIncomplete = allArts.find(a => !progress[a.id]);
+  const currentArtId    = firstIncomplete ? firstIncomplete.id : (allArts.length ? allArts[allArts.length-1].id : null);
+
   // Apply settings
   document.title = settings.siteTitle + ' — Game Hacking Course';
   document.getElementById('heroSub').textContent = settings.heroText;
@@ -246,15 +258,30 @@
   // Sidebar path
   const pathEl = document.getElementById('sidebarPath');
   modules.forEach(mod => {
-    const mArts  = allArts.filter(a => a.moduleId === mod.id);
+    const mArts   = allArts.filter(a => a.moduleId === mod.id);
     const allDone = mArts.length > 0 && mArts.every(a => progress[a.id]);
     const anyDone = mArts.some(a => progress[a.id]);
-    const isCurrent = !allDone && anyDone;
+    const isCur   = !allDone && anyDone;
     const div = document.createElement('div');
-    div.className = 'path-item' + (allDone ? ' done' : isCurrent ? ' current' : '');
+    div.className = 'path-item' + (allDone ? ' done' : isCur ? ' current' : '');
     div.innerHTML = `<span class="path-dot"></span>${mod.title}`;
     pathEl.appendChild(div);
   });
+
+  // Continue button in sidebar
+  if (currentArtId) {
+    const curArt = allArts.find(a => a.id === currentArtId);
+    if (curArt) {
+      const sidebarEl = document.querySelector('.sidebar');
+      const continueCard = document.createElement('div');
+      continueCard.style.cssText = 'background:linear-gradient(135deg,#1a1408 0%,#111420 100%);border:1px solid #3a2a08;border-radius:6px;padding:18px;margin-bottom:20px;';
+      continueCard.innerHTML = `
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">// Continue Where You Left Off</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--text-bright);margin-bottom:6px;">${curArt.title}</div>
+        <a class="btn btn-accent" href="article.html?id=${curArt.id}" style="display:inline-block;margin-top:10px;">Continue →</a>`;
+      sidebarEl.insertBefore(continueCard, sidebarEl.firstChild);
+    }
+  }
 
   // Course content
   const content = document.getElementById('courseContent');
@@ -276,18 +303,34 @@
       cardsHtml = `<div class="empty-module">No tutorials published in this module yet.</div>`;
     } else {
       mArts.forEach(art => {
-        const isDone = !!progress[art.id];
-        const tagHtml = [art.difficulty, ...art.tags]
+        const isDone    = !!progress[art.id];
+        const isCurrent = art.id === currentArtId;
+        const tagHtml   = [art.difficulty, ...art.tags]
           .map(t => `<span class="t-tag tag-${t}">${t}</span>`).join('');
+
+        let iconHtml, statusHtml, extraClass = '';
+        if (isDone) {
+          iconHtml   = `<div class="t-icon t-icon-done">✓</div>`;
+          statusHtml = `<span class="t-status s-done">Done</span>`;
+          extraClass = 'done';
+        } else if (isCurrent) {
+          iconHtml   = `<div class="t-icon t-icon-current">▶</div>`;
+          statusHtml = `<span class="t-status s-current">Current</span>`;
+          extraClass = 'active';
+        } else {
+          iconHtml   = `<div class="t-icon t-icon-new"></div>`;
+          statusHtml = `<span class="t-status s-new">New</span>`;
+        }
+
         cardsHtml += `
-          <a class="t-card ${isDone ? 'done' : ''}" href="article.html?id=${art.id}">
-            <div class="t-icon">${isDone ? '✓' : '📄'}</div>
+          <a class="t-card ${extraClass}" href="article.html?id=${art.id}">
+            ${iconHtml}
             <div>
               <div class="t-title">${art.title}</div>
               <div class="t-meta">${tagHtml}<span class="t-dur">· ${art.duration} min</span></div>
             </div>
             <div class="t-right">
-              <span class="t-status ${isDone ? 's-done' : 's-new'}">${isDone ? 'Done' : 'New'}</span>
+              ${statusHtml}
               <span class="t-chev">›</span>
             </div>
           </a>`;

@@ -56,32 +56,186 @@ const EH = (() => {
         tags: ['c++', 'win32'],
         duration: 5,
         published: true,
-        content: `<p>If you want to open a handle to another process — whether for memory reading, DLL injection, or anything else — the very first thing you need is that process's <strong>Process ID (PID)</strong>.</p>
+        content: `
+<p>If you want to open a handle to another process — whether for memory reading, DLL injection, or anything else — the very first thing you need is that process's <strong>Process ID (PID)</strong>. Windows doesn't give it to you for free; you have to enumerate every running process and find the one that matches your target.</p>
+<p>This tutorial covers a clean, reusable <code>GetProcessId</code> function built entirely on the Win32 <strong>Toolhelp32 API</strong>. We'll walk through every line so you understand exactly what's happening and why.</p>
+
+<h2>Prerequisites</h2>
+<p>Before you start, make sure you have:</p>
+<ul class="steps">
+  <li>Visual Studio (any recent version) or any C++ compiler targeting Windows</li>
+  <li>Basic familiarity with C++ and Windows handles</li>
+  <li><code>#include &lt;windows.h&gt;</code> and <code>#include &lt;tlhelp32.h&gt;</code> in your project</li>
+</ul>
+
 <h2>The Complete Function</h2>
-<pre><code>DWORD GetProcessId(const char* ProcessName)
+<p>Here's the full function we'll be dissecting:</p>
+
+<div class="codeblock">
+  <div class="codeblock-header">
+    <span class="codeblock-lang">C++</span>
+    <div class="codeblock-dots"><span></span><span></span><span></span></div>
+  </div>
+  <pre><span class="ty">DWORD</span> <span class="fn">GetProcessId</span>(<span class="kw">const</span> <span class="ty">char</span><span class="op">*</span> <span class="va">ProcessName</span>)
 {
-    DWORD ProcessId = 0;
-    HANDLE SnapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (SnapshotHandle != INVALID_HANDLE_VALUE)
+    <span class="ty">DWORD</span> <span class="va">ProcessId</span> <span class="op">=</span> <span class="num">0</span>;
+    <span class="ty">HANDLE</span> <span class="va">SnapshotHandle</span> <span class="op">=</span> <span class="fn">CreateToolhelp32Snapshot</span>(<span class="cn">TH32CS_SNAPPROCESS</span>, <span class="num">0</span>);
+
+    <span class="kw">if</span> (<span class="va">SnapshotHandle</span> <span class="op">!=</span> <span class="cn">INVALID_HANDLE_VALUE</span>)
     {
-        PROCESSENTRY32 ProcessEntry;
-        ProcessEntry.dwSize = sizeof(PROCESSENTRY32);
-        if (Process32First(SnapshotHandle, &amp;ProcessEntry))
+        <span class="ty">PROCESSENTRY32</span> <span class="va">ProcessEntry</span>;
+        <span class="va">ProcessEntry</span>.dwSize <span class="op">=</span> <span class="kw">sizeof</span>(<span class="ty">PROCESSENTRY32</span>);
+
+        <span class="kw">if</span> (<span class="fn">Process32First</span>(<span class="va">SnapshotHandle</span>, <span class="op">&amp;</span><span class="va">ProcessEntry</span>))
         {
-            do {
-                if (_stricmp(ProcessEntry.szExeFile, ProcessName) == 0)
+            <span class="kw">do</span> {
+                <span class="kw">if</span> (<span class="fn">_stricmp</span>(<span class="va">ProcessEntry</span>.szExeFile, <span class="va">ProcessName</span>) <span class="op">==</span> <span class="num">0</span>)
                 {
-                    ProcessId = ProcessEntry.th32ProcessID;
-                    break;
+                    <span class="va">ProcessId</span> <span class="op">=</span> <span class="va">ProcessEntry</span>.th32ProcessID;
+                    <span class="kw">break</span>;
                 }
-            } while (Process32Next(SnapshotHandle, &amp;ProcessEntry));
+            } <span class="kw">while</span> (<span class="fn">Process32Next</span>(<span class="va">SnapshotHandle</span>, <span class="op">&amp;</span><span class="va">ProcessEntry</span>));
         }
-        CloseHandle(SnapshotHandle);
+        <span class="fn">CloseHandle</span>(<span class="va">SnapshotHandle</span>);
     }
-    return ProcessId;
-}</code></pre>
-<h2>How it Works</h2>
-<p>We call <code>CreateToolhelp32Snapshot</code> to get a frozen snapshot of all running processes. We then iterate with <code>Process32First</code> / <code>Process32Next</code>, comparing each process name with <code>_stricmp</code> (case-insensitive). When we find our target, we grab its PID and break out. Always <code>CloseHandle</code> when done.</p>`,
+    <span class="kw">return</span> <span class="va">ProcessId</span>;
+}</pre>
+</div>
+
+<h2>Step-by-Step Breakdown</h2>
+
+<h3>1. Taking the Snapshot</h3>
+<p>The function starts by calling <code>CreateToolhelp32Snapshot</code>. Think of this as taking a <em>frozen photograph</em> of the system at a point in time. We pass <code>TH32CS_SNAPPROCESS</code> to tell Windows we only care about processes (not threads, heaps, or modules), and <code>0</code> as the second argument since we want system-wide results rather than a specific process.</p>
+
+<div class="codeblock">
+  <div class="codeblock-header"><span class="codeblock-lang">C++</span><div class="codeblock-dots"><span></span><span></span><span></span></div></div>
+  <pre><span class="ty">HANDLE</span> <span class="va">SnapshotHandle</span> <span class="op">=</span> <span class="fn">CreateToolhelp32Snapshot</span>(<span class="cn">TH32CS_SNAPPROCESS</span>, <span class="num">0</span>);</pre>
+</div>
+
+<p>The function returns a <code>HANDLE</code>. If something goes wrong — for example, if the system is out of resources — it returns <code>INVALID_HANDLE_VALUE</code> instead. That's exactly what the outer <code>if</code> check guards against.</p>
+
+<div class="callout note">
+  <span class="callout-icon">ℹ</span>
+  <div class="callout-body">
+    <div class="callout-title">Why a snapshot?</div>
+    <div class="callout-text">The process list is volatile — processes can start and die in milliseconds. A snapshot gives you a consistent view so your enumeration doesn't race against system changes.</div>
+  </div>
+</div>
+
+<h3>2. Setting Up PROCESSENTRY32</h3>
+<p><code>PROCESSENTRY32</code> is the structure Windows populates with information about each process. The <strong>critical</strong> step here is manually setting <code>dwSize</code> to <code>sizeof(PROCESSENTRY32)</code> before passing it to any API call. Windows uses this field to know which version of the structure you're expecting — skip it and <code>Process32First</code> will fail immediately.</p>
+
+<div class="codeblock">
+  <div class="codeblock-header"><span class="codeblock-lang">C++</span><div class="codeblock-dots"><span></span><span></span><span></span></div></div>
+  <pre><span class="ty">PROCESSENTRY32</span> <span class="va">ProcessEntry</span>;
+<span class="va">ProcessEntry</span>.dwSize <span class="op">=</span> <span class="kw">sizeof</span>(<span class="ty">PROCESSENTRY32</span>);</pre>
+</div>
+
+<div class="callout warn">
+  <span class="callout-icon">⚠</span>
+  <div class="callout-body">
+    <div class="callout-title">Common Mistake</div>
+    <div class="callout-text">Forgetting to set <code>dwSize</code> is one of the most frequent Win32 bugs for beginners. Always initialize it before your first <code>Process32First</code> call.</div>
+  </div>
+</div>
+
+<h3>3. Iterating the Process List</h3>
+<p>The pattern here is idiomatic Win32 enumeration: call <code>Process32First</code> to seed the first entry, then loop with <code>Process32Next</code> until it returns <code>FALSE</code>. Each iteration fills <code>ProcessEntry</code> with data about one process.</p>
+
+<div class="codeblock">
+  <div class="codeblock-header"><span class="codeblock-lang">C++</span><div class="codeblock-dots"><span></span><span></span><span></span></div></div>
+  <pre><span class="kw">if</span> (<span class="fn">Process32First</span>(<span class="va">SnapshotHandle</span>, <span class="op">&amp;</span><span class="va">ProcessEntry</span>))
+{
+    <span class="kw">do</span> {
+        <span class="cm">// check each process here</span>
+    } <span class="kw">while</span> (<span class="fn">Process32Next</span>(<span class="va">SnapshotHandle</span>, <span class="op">&amp;</span><span class="va">ProcessEntry</span>));
+}</pre>
+</div>
+
+<p>The <code>do-while</code> construct is used (rather than a plain <code>while</code>) because we already have a valid first entry from <code>Process32First</code> — we want to inspect it before asking for the next one.</p>
+
+<h3>4. Comparing the Process Name</h3>
+<p>Inside the loop, we compare <code>ProcessEntry.szExeFile</code> (the executable filename, e.g. <code>"notepad.exe"</code>) against our target using <code>_stricmp</code>. The "i" stands for <em>case-insensitive</em>, so <code>"Notepad.EXE"</code> and <code>"notepad.exe"</code> both match. When we find it, we grab the PID and break out immediately.</p>
+
+<div class="codeblock">
+  <div class="codeblock-header"><span class="codeblock-lang">C++</span><div class="codeblock-dots"><span></span><span></span><span></span></div></div>
+  <pre><span class="kw">if</span> (<span class="fn">_stricmp</span>(<span class="va">ProcessEntry</span>.szExeFile, <span class="va">ProcessName</span>) <span class="op">==</span> <span class="num">0</span>)
+{
+    <span class="va">ProcessId</span> <span class="op">=</span> <span class="va">ProcessEntry</span>.th32ProcessID;
+    <span class="kw">break</span>;
+}</pre>
+</div>
+
+<div class="callout tip">
+  <span class="callout-icon">✓</span>
+  <div class="callout-body">
+    <div class="callout-title">Pro Tip</div>
+    <div class="callout-text">Using <code>_stricmp</code> is a small but important detail. Game process names are often inconsistent in capitalisation across different versions and launchers.</div>
+  </div>
+</div>
+
+<h3>5. Closing the Handle</h3>
+<p>After the loop — whether we found the process or not — we call <code>CloseHandle</code> on the snapshot. Snapshots consume kernel memory, and failing to close them is a <strong>handle leak</strong>. Always clean up, even on early exits.</p>
+
+<h2>Key Structures &amp; Functions</h2>
+
+<table class="gh-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>CreateToolhelp32Snapshot</code></td><td>Function</td><td>Creates a read-only snapshot of the process list</td></tr>
+    <tr><td><code>PROCESSENTRY32</code></td><td>Structure</td><td>Holds info about a single process (name, PID, parent PID, thread count)</td></tr>
+    <tr><td><code>Process32First</code></td><td>Function</td><td>Retrieves the first process entry from the snapshot</td></tr>
+    <tr><td><code>Process32Next</code></td><td>Function</td><td>Advances to the next process entry in the snapshot</td></tr>
+    <tr><td><code>szExeFile</code></td><td>Field</td><td>Null-terminated string of the executable filename (e.g. <code>game.exe</code>)</td></tr>
+    <tr><td><code>th32ProcessID</code></td><td>Field</td><td>The process ID (PID) — what we're after</td></tr>
+    <tr><td><code>CloseHandle</code></td><td>Function</td><td>Releases the snapshot handle, freeing kernel resources</td></tr>
+  </tbody>
+</table>
+
+<h2>How to Use It</h2>
+<p>Calling the function is simple. Pass the exact executable name (with extension) and check the return value. A return of <code>0</code> means the process wasn't found.</p>
+
+<div class="codeblock">
+  <div class="codeblock-header"><span class="codeblock-lang">C++</span><div class="codeblock-dots"><span></span><span></span><span></span></div></div>
+  <pre><span class="ty">int</span> <span class="fn">main</span>()
+{
+    <span class="ty">DWORD</span> <span class="va">pid</span> <span class="op">=</span> <span class="fn">GetProcessId</span>(<span class="str">"notepad.exe"</span>);
+
+    <span class="kw">if</span> (<span class="va">pid</span> <span class="op">==</span> <span class="num">0</span>)
+    {
+        <span class="fn">printf</span>(<span class="str">"[!] Process not found.\\n"</span>);
+        <span class="kw">return</span> <span class="num">1</span>;
+    }
+
+    <span class="fn">printf</span>(<span class="str">"[+] Found PID: %lu\\n"</span>, <span class="va">pid</span>);
+
+    <span class="cm">// Now open a handle to the process:</span>
+    <span class="ty">HANDLE</span> <span class="va">hProcess</span> <span class="op">=</span> <span class="fn">OpenProcess</span>(<span class="cn">PROCESS_ALL_ACCESS</span>, <span class="cn">FALSE</span>, <span class="va">pid</span>);
+
+    <span class="cm">// ... do your work here ...</span>
+
+    <span class="fn">CloseHandle</span>(<span class="va">hProcess</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+</div>
+
+<h2>What's Next?</h2>
+<p>Now that you have the PID, the next step is calling <code>OpenProcess</code> to get a handle with the access rights you need. From there the typical external cheat workflow looks like this:</p>
+<ul class="steps">
+  <li>Use <code>GetProcessId</code> to find the target PID</li>
+  <li>Call <code>OpenProcess</code> with <code>PROCESS_VM_READ</code> or <code>PROCESS_ALL_ACCESS</code></li>
+  <li>Use <code>ReadProcessMemory</code> / <code>WriteProcessMemory</code> to access game memory</li>
+  <li>Always <code>CloseHandle</code> when you're done</li>
+</ul>
+
+<div class="callout warn">
+  <span class="callout-icon">⚠</span>
+  <div class="callout-body">
+    <div class="callout-title">Required Headers</div>
+    <div class="callout-text">You need both <code>#include &lt;windows.h&gt;</code> and <code>#include &lt;tlhelp32.h&gt;</code> at the top of your file, or you'll get compiler errors about missing types and functions.</div>
+  </div>
+</div>
+`,
         createdAt: new Date('2025-01-02').toISOString(),
       },
     ],
