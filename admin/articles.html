@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Articles — Admin</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.admin-layout { display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - var(--topbar-h)); }
+.admin-nav { background:#090b0f;border-right:1px solid var(--border);padding:24px 0;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto; }
+.admin-nav-section { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);padding:0 20px;margin:20px 0 8px; }
+.admin-nav-link { display:flex;align-items:center;gap:10px;padding:10px 20px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;color:var(--text-dim);text-decoration:none;letter-spacing:.5px;transition:background .15s,color .15s;border-left:2px solid transparent; }
+.admin-nav-link:hover  { background:var(--surface);color:var(--text-bright);border-left-color:var(--border); }
+.admin-nav-link.active { background:var(--surface);color:var(--accent);border-left-color:var(--accent); }
+.admin-nav-link .icon  { font-size:16px;width:20px;text-align:center;flex-shrink:0; }
+.admin-main { padding:36px 40px;overflow-y:auto; }
+.page-title { font-family:'Rajdhani',sans-serif;font-weight:900;font-size:26px;color:var(--text-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px; }
+.page-sub   { font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-dim);margin-bottom:28px; }
+
+.filter-bar { display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center; }
+.filter-bar select, .filter-bar input { max-width:220px; }
+
+.art-table { width:100%;border-collapse:collapse; }
+.art-table th { font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);background:#0f1118;padding:10px 14px;border-bottom:2px solid var(--accent);text-align:left; }
+.art-table td { padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle; }
+.art-table tr:hover td { background:var(--surface); }
+.art-title { font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;color:var(--text-bright); }
+.t-tag { font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px; }
+.tag-beginner     { background:#0e220e;color:var(--green); }
+.tag-intermediate { background:#1e1408;color:var(--accent); }
+.tag-advanced     { background:#200a0a;color:var(--red); }
+.pub-dot { display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px; }
+.pub-dot.yes { background:var(--green); } .pub-dot.no { background:var(--red); }
+.empty-state { text-align:center;padding:60px 20px;font-family:'Rajdhani',sans-serif;color:var(--text-dim); }
+.empty-state h3 { font-size:22px;margin-bottom:8px;color:var(--text-bright); }
+
+.confirm-overlay { position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s; }
+.confirm-overlay.open { opacity:1;pointer-events:all; }
+.confirm-box { background:var(--surface);border:1px solid var(--red);border-radius:8px;padding:28px;max-width:360px;width:100%; }
+.confirm-title { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:var(--red);margin-bottom:10px; }
+.confirm-msg   { font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-dim);margin-bottom:20px;line-height:1.5; }
+.confirm-footer { display:flex;gap:10px;justify-content:flex-end; }
+
+@media (max-width:900px) { .admin-layout { grid-template-columns:1fr; } .admin-nav { display:none; } .admin-main { padding:20px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="../index.html">Ethical<span>Hacking</span> <span style="font-size:11px;letter-spacing:2px;color:var(--text-dim);margin-left:10px;font-weight:400;">ADMIN</span></a>
+  <nav class="nav">
+    <a href="../index.html">← View Site</a>
+    <a href="#" onclick="doLogout();return false;" style="color:var(--red);">Logout</a>
+  </nav>
+</div>
+
+<div class="admin-layout">
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Content</div>
+    <a class="admin-nav-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="admin-nav-link active" href="articles.html"><span class="icon">📝</span> Articles</a>
+    <a class="admin-nav-link" href="modules.html"><span class="icon">📦</span> Modules</a>
+    <div class="admin-nav-section">Site</div>
+    <a class="admin-nav-link" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+    <a class="admin-nav-link" href="import-export.html"><span class="icon">💾</span> Backup / Restore</a>
+  </nav>
+
+  <main class="admin-main">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px;">
+      <div>
+        <div class="page-title">Articles</div>
+        <div class="page-sub">Manage all tutorials across all modules.</div>
+      </div>
+      <a class="btn btn-accent" href="edit-article.html" style="flex-shrink:0;margin-top:4px;">+ New Article</a>
+    </div>
+
+    <div class="filter-bar">
+      <input class="form-input" id="searchInput" placeholder="Search articles…" oninput="renderTable()" style="max-width:260px;">
+      <select class="form-select" id="moduleFilter" onchange="renderTable()">
+        <option value="">All Modules</option>
+      </select>
+      <select class="form-select" id="statusFilter" onchange="renderTable()" style="max-width:160px;">
+        <option value="">All Status</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+    </div>
+
+    <table class="art-table">
+      <thead><tr>
+        <th>Title</th><th>Module</th><th>Difficulty</th><th>Duration</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="artBody"></tbody>
+    </table>
+    <div class="empty-state hidden" id="emptyState">
+      <h3>No articles found</h3>
+      <p>Try adjusting your filters or <a href="edit-article.html" style="color:var(--accent);">create a new article</a>.</p>
+    </div>
+  </main>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title">Delete Article?</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-footer">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="../js/store.js"></script>
+<script>
+if (!EH.checkAuth()) { location.href = 'login.html'; }
+function doLogout() { EH.logout(); location.href = 'login.html'; }
+
+const modules = EH.getModules();
+const modMap  = {};
+modules.forEach(m => { modMap[m.id] = m.title; });
+
+// Populate module filter
+const modSel = document.getElementById('moduleFilter');
+modules.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m.id; opt.textContent = m.title;
+  modSel.appendChild(opt);
+});
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const modF   = document.getElementById('moduleFilter').value;
+  const statF  = document.getElementById('statusFilter').value;
+
+  let arts = EH.getArticles();
+  if (search) arts = arts.filter(a => a.title.toLowerCase().includes(search));
+  if (modF)   arts = arts.filter(a => a.moduleId === modF);
+  if (statF === 'published') arts = arts.filter(a => a.published);
+  if (statF === 'draft')     arts = arts.filter(a => !a.published);
+
+  const tbody = document.getElementById('artBody');
+  const empty = document.getElementById('emptyState');
+
+  if (arts.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = arts.map(art => `
+    <tr>
+      <td><div class="art-title">${art.title}</div></td>
+      <td style="font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text-dim);">${modMap[art.moduleId] || '—'}</td>
+      <td><span class="t-tag tag-${art.difficulty}">${art.difficulty}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);">${art.duration}m</td>
+      <td>
+        <span class="pub-dot ${art.published ? 'yes' : 'no'}"></span>
+        <span style="font-family:Rajdhani,sans-serif;font-size:13px;">${art.published ? 'Published' : 'Draft'}</span>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <a class="btn btn-ghost" style="padding:4px 10px;" href="edit-article.html?id=${art.id}">Edit</a>
+          <a class="btn btn-blue"  style="padding:4px 10px;" href="../article.html?id=${art.id}" target="_blank">View</a>
+          <button class="btn btn-danger" style="padding:4px 10px;" onclick="confirmDelete('${art.id}','${art.title.replace(/'/g,"\'")}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+renderTable();
+
+function confirmDelete(id, title) {
+  document.getElementById('confirmMsg').textContent = `Delete "${title}"? This cannot be undone.`;
+  document.getElementById('confirmOkBtn').onclick = () => {
+    EH.deleteArticle(id);
+    showToast('Article deleted.');
+    closeConfirm();
+    renderTable();
+  };
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
+document.getElementById('confirmOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+</script>
+</body>
+</html>

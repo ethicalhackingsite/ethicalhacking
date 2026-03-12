@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — EthicalHacking</title>
+<link rel="stylesheet" href="css/main.css">
+<style>
+.about-wrap { max-width:720px;margin:60px auto;padding:0 40px 80px; }
+.about-title { font-family:'Rajdhani',sans-serif;font-weight:900;font-size:42px;color:var(--text-bright);letter-spacing:1px;margin-bottom:10px; }
+.about-title span { color:var(--accent); }
+.about-sub { font-family:'Rajdhani',sans-serif;font-size:18px;color:var(--text-dim);margin-bottom:36px; }
+.about-body h2 { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--text-bright);margin:32px 0 12px;border-bottom:1px solid var(--border);padding-bottom:8px; }
+.about-body p  { margin-bottom:16px; }
+.about-body a  { color:var(--accent2); }
+.disclaimer { background:#1e0808;border:1px solid #4a1010;border-radius:4px;padding:16px 20px;margin-top:32px;font-size:15px; }
+.disclaimer strong { color:var(--red); }
+@media (max-width:600px) { .about-wrap { padding:0 20px 60px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="index.html">Ethical<span>Hacking</span></a>
+  <nav class="nav">
+    <a href="index.html">Tutorials</a>
+    <a href="about.html" class="active">About</a>
+  </nav>
+</div>
+
+<div class="about-wrap">
+  <div class="about-title"><span>Ethical</span>Hacking</div>
+  <div class="about-sub">A free, structured course on game memory hacking and reverse engineering.</div>
+  <div class="about-body">
+    <h2>What is this?</h2>
+    <p>EthicalHacking is a self-paced, completely free course covering game hacking from the ground up — starting with Windows process enumeration and working all the way up to DLL injection, internal cheats, reverse engineering with x64dbg, function hooking, and anti-cheat research.</p>
+    <h2>Who is it for?</h2>
+    <p>Anyone with some C++ experience who wants to understand how game hacking works at a low level. The course assumes you know basic C++ syntax and are comfortable with Visual Studio, but no prior Win32 API knowledge is required.</p>
+    <h2>Why game hacking?</h2>
+    <p>Game hacking is one of the best hands-on ways to learn systems programming, reverse engineering, and low-level Windows internals. The feedback loop is fast, the targets are well-documented, and the skills transfer directly to security research, malware analysis, and software engineering.</p>
+    <div class="disclaimer">
+      <strong>⚠ Disclaimer:</strong> All content on this site is for <strong>educational purposes only</strong>. Using these techniques against games or software you do not own, or in violation of a game's Terms of Service, is against the rules and potentially illegal. Always practice in controlled, local environments. The author takes no responsibility for misuse of this material.
+    </div>
+  </div>
+</div>
+
+<footer><span>EthicalHacking</span> &nbsp;·&nbsp; All content is for educational purposes only &nbsp;·&nbsp; Use responsibly</footer>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article — EthicalHacking</title>
+<link rel="stylesheet" href="css/main.css">
+<style>
+.hero {
+  background: linear-gradient(160deg,#111420 0%,#0d0f14 60%);
+  border-bottom:1px solid var(--border);
+  padding:52px 48px 40px;
+  max-width:960px;margin:0 auto;
+}
+.breadcrumb {
+  font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:18px;
+}
+.breadcrumb a { color:var(--text-dim);text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+.breadcrumb span { color:var(--accent); }
+.article-title {
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:clamp(28px,5vw,52px);color:var(--text-bright);
+  letter-spacing:1px;line-height:1.1;margin-bottom:14px;
+}
+.article-title .hl { color:var(--accent); }
+.art-meta { display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:18px; }
+.art-meta-txt { font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:.5px; }
+
+/* Layout */
+.layout {
+  max-width:960px;margin:0 auto;
+  padding:48px 48px 80px;
+  display:grid;grid-template-columns:1fr 240px;gap:48px;align-items:start;
+}
+
+/* Article body */
+.article h1,
+.article h2 {
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:24px;
+  color:var(--text-bright);letter-spacing:.5px;
+  margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.article h2::before {
+  content:'';display:inline-block;width:4px;height:20px;
+  background:var(--accent);border-radius:2px;flex-shrink:0;
+}
+.article h3 { font-family:'Rajdhani',sans-serif;font-weight:600;font-size:18px;color:var(--accent);margin:24px 0 8px; }
+.article p  { margin-bottom:16px; }
+.article a  { color:var(--accent2);text-decoration:underline;text-underline-offset:3px; }
+.article a:hover { color:var(--accent); }
+.article code {
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  background:var(--surface2);color:#c6d3f7;
+  padding:2px 6px;border-radius:3px;border:1px solid var(--border);
+}
+.article pre {
+  background:var(--code-bg);border:1px solid var(--border);
+  border-top:2px solid var(--accent);border-radius:6px;
+  padding:18px 20px;overflow-x:auto;margin:20px 0;
+}
+.article pre code {
+  background:none;border:none;padding:0;
+  font-size:13.5px;line-height:1.7;color:var(--text);
+}
+.article ul,
+.article ol  { padding-left:24px;margin-bottom:16px; }
+.article li  { margin-bottom:6px; }
+.article strong { color:var(--text-bright); }
+.article em     { color:var(--text-dim);font-style:italic; }
+.article blockquote {
+  border-left:3px solid var(--accent);padding:10px 18px;
+  margin:20px 0;background:var(--surface);border-radius:0 4px 4px 0;
+  color:var(--text-dim);font-style:italic;
+}
+
+/* Complete button */
+.complete-bar {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:16px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  margin-bottom:24px;flex-wrap:wrap;
+}
+.complete-bar p {
+  font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-dim);
+  margin:0;letter-spacing:.5px;
+}
+.complete-bar.is-done {
+  background:#0e1e0e;border-color:#2a5a2a;
+}
+.complete-bar.is-done p { color:var(--green); }
+
+/* Nav arrows */
+.article-nav {
+  display:flex;justify-content:space-between;gap:16px;margin-top:40px;flex-wrap:wrap;
+}
+.nav-btn {
+  background:var(--surface);border:1px solid var(--border);border-radius:5px;
+  padding:12px 18px;text-decoration:none;flex:1;min-width:140px;
+  transition:border-color .15s,background .15s;
+}
+.nav-btn:hover { border-color:var(--accent);background:var(--surface2); }
+.nav-btn-label { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:block;margin-bottom:4px; }
+.nav-btn-title { font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text-bright); }
+.nav-btn.next   { text-align:right; }
+
+/* Sidebar */
+.sidebar { position:sticky;top:76px; }
+.toc-link {
+  display:block;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:500;
+  color:var(--text-dim);text-decoration:none;padding:6px 0;
+  border-bottom:1px solid var(--border);transition:color .2s,padding-left .2s;
+}
+.toc-link:last-child { border-bottom:none; }
+.toc-link:hover { color:var(--accent);padding-left:6px; }
+.req-item {
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);
+  background:var(--surface2);padding:5px 10px;border-radius:3px;
+  margin-bottom:6px;display:block;border:1px solid var(--border);
+}
+
+@media (max-width:768px) {
+  .hero,.layout { padding:32px 20px; }
+  .layout { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="index.html" id="siteLogoLink">Ethical<span>Hacking</span></a>
+  <nav class="nav">
+    <a href="index.html">Tutorials</a>
+    <a href="about.html">About</a>
+  </nav>
+</div>
+
+<div id="heroSection" class="hero"></div>
+
+<div class="layout">
+  <article>
+    <div class="complete-bar" id="completeBar">
+      <p id="completeMsg">Mark this lesson as complete when you're done.</p>
+      <button class="btn btn-accent" id="completeBtn" onclick="toggleComplete()">Mark Complete</button>
+    </div>
+    <div class="article" id="articleBody"></div>
+    <div class="article-nav" id="articleNav"></div>
+  </article>
+  <aside class="sidebar" id="sidebarEl"></aside>
+</div>
+
+<footer><span id="footerBrand">EthicalHacking</span> &nbsp;·&nbsp; All content is for educational purposes only &nbsp;·&nbsp; Use responsibly</footer>
+<div id="toast"></div>
+
+<script src="js/store.js"></script>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const id     = params.get('id');
+  const art    = id ? EH.getArticleById(id) : null;
+  const settings = EH.getSettings();
+
+  document.getElementById('footerBrand').textContent = settings.siteTitle;
+
+  if (!art) {
+    document.getElementById('heroSection').innerHTML = '<div style="padding:40px;text-align:center;font-family:Rajdhani,sans-serif;color:var(--text-dim);">Article not found. <a href="index.html" style="color:var(--accent);">← Back to course</a></div>';
+    document.getElementById('articleBody').innerHTML = '';
+    return;
+  }
+
+  document.title = art.title + ' — ' + settings.siteTitle;
+
+  // Hero
+  const tagHtml = [art.difficulty, ...art.tags].map(t =>
+    `<span class="badge badge-${t}">${t}</span>`).join('');
+  document.getElementById('heroSection').innerHTML = `
+    <div class="breadcrumb">
+      <a href="index.html">Tutorials</a> &rsaquo;
+      <span>${art.title}</span>
+    </div>
+    <h1 class="article-title">${art.title}</h1>
+    <div class="art-meta">
+      ${tagHtml}
+      <span class="art-meta-txt">${art.duration} min read</span>
+    </div>`;
+
+  // Body
+  document.getElementById('articleBody').innerHTML = art.content;
+
+  // Complete state
+  function renderComplete() {
+    const done = EH.isComplete(art.id);
+    const bar  = document.getElementById('completeBar');
+    const btn  = document.getElementById('completeBtn');
+    const msg  = document.getElementById('completeMsg');
+    if (done) {
+      bar.classList.add('is-done');
+      msg.textContent = '✓ You\'ve completed this lesson!';
+      btn.textContent = 'Mark Incomplete';
+      btn.className   = 'btn btn-ghost';
+    } else {
+      bar.classList.remove('is-done');
+      msg.textContent = 'Mark this lesson as complete when you\'re done.';
+      btn.textContent = 'Mark Complete';
+      btn.className   = 'btn btn-accent';
+    }
+  }
+  renderComplete();
+
+  window.toggleComplete = function() {
+    const prog = EH.getProgress();
+    if (EH.isComplete(art.id)) {
+      delete prog[art.id];
+      localStorage.setItem('eh_progress', JSON.stringify(prog));
+      showToast('Marked as incomplete.');
+    } else {
+      EH.markComplete(art.id);
+      showToast('Lesson complete! ✓');
+    }
+    renderComplete();
+  };
+
+  // Prev / Next
+  const allArts = EH.getArticles({ published: true });
+  const idx = allArts.findIndex(a => a.id === art.id);
+  const prev = idx > 0 ? allArts[idx - 1] : null;
+  const next = idx < allArts.length - 1 ? allArts[idx + 1] : null;
+  let navHtml = '';
+  if (prev) navHtml += `<a class="nav-btn prev" href="article.html?id=${prev.id}"><span class="nav-btn-label">← Previous</span><span class="nav-btn-title">${prev.title}</span></a>`;
+  if (next) navHtml += `<a class="nav-btn next" href="article.html?id=${next.id}"><span class="nav-btn-label">Next →</span><span class="nav-btn-title">${next.title}</span></a>`;
+  document.getElementById('articleNav').innerHTML = navHtml;
+
+  // Sidebar TOC
+  const headings = document.querySelectorAll('.article h2, .article h3');
+  let tocHtml = '';
+  headings.forEach((h, i) => {
+    h.id = 'h-' + i;
+    tocHtml += `<a class="toc-link" href="#h-${i}">${h.textContent}</a>`;
+  });
+  document.getElementById('sidebarEl').innerHTML = `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">In This Article</div>
+      <div class="card-body">${tocHtml || '<span style="font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text-dim);">No headings found.</span>'}</div>
+    </div>
+    <div class="card">
+      <div class="card-header">Required Headers</div>
+      <div class="card-body">
+        <span class="req-item">#include &lt;windows.h&gt;</span>
+        <span class="req-item">#include &lt;tlhelp32.h&gt;</span>
+        <span class="req-item">MSVC / MinGW / Clang-cl</span>
+        <span class="req-item">Windows 7+</span>
+      </div>
+    </div>`;
+})();
+</script>
+</body>
+</html>

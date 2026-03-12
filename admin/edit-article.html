@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Article — Admin</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.admin-layout { display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - var(--topbar-h)); }
+.admin-nav {
+  background:#090b0f;border-right:1px solid var(--border);
+  padding:24px 0;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;
+}
+.admin-nav-section { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);padding:0 20px;margin:20px 0 8px; }
+.admin-nav-link { display:flex;align-items:center;gap:10px;padding:10px 20px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;color:var(--text-dim);text-decoration:none;letter-spacing:.5px;transition:background .15s,color .15s;border-left:2px solid transparent; }
+.admin-nav-link:hover  { background:var(--surface);color:var(--text-bright);border-left-color:var(--border); }
+.admin-nav-link.active { background:var(--surface);color:var(--accent);border-left-color:var(--accent); }
+.admin-nav-link .icon  { font-size:16px;width:20px;text-align:center;flex-shrink:0; }
+.admin-main { padding:36px 40px;overflow-y:auto; }
+
+.editor-grid { display:grid;grid-template-columns:1fr 280px;gap:32px;align-items:start; }
+
+/* Toolbar */
+.editor-toolbar {
+  display:flex;flex-wrap:wrap;gap:4px;
+  background:var(--code-bg);border:1px solid var(--border);
+  border-bottom:none;border-radius:4px 4px 0 0;padding:8px;
+}
+.tb-btn {
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;
+  color:var(--text-dim);padding:4px 10px;cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.tb-btn:hover { background:var(--surface);color:var(--accent);border-color:var(--accent); }
+.tb-sep { width:1px;background:var(--border);margin:2px 4px; }
+
+/* Content editor */
+#contentEditor {
+  width:100%;min-height:480px;
+  background:var(--code-bg);border:1px solid var(--border);
+  border-radius:0 0 4px 4px;padding:16px;
+  color:var(--text-bright);font-family:'Source Serif 4',serif;font-size:15px;line-height:1.75;
+  outline:none;resize:vertical;
+}
+#contentEditor:focus { border-color:var(--accent); }
+
+/* Preview */
+.preview-panel {
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;
+}
+.preview-header {
+  background:#0f1118;border-bottom:1px solid var(--border);padding:10px 16px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;justify-content:space-between;
+}
+#previewBody {
+  padding:20px;min-height:200px;
+  font-family:'Source Serif 4',serif;font-size:15px;line-height:1.75;color:var(--text);
+}
+#previewBody h2 { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;color:var(--text-bright);margin:20px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px; }
+#previewBody h3 { font-family:'Rajdhani',sans-serif;font-weight:600;font-size:16px;color:var(--accent);margin:14px 0 6px; }
+#previewBody p  { margin-bottom:12px; }
+#previewBody code { font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);color:#c6d3f7;padding:1px 5px;border-radius:3px;border:1px solid var(--border); }
+#previewBody pre  { background:var(--code-bg);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:4px;padding:14px;overflow-x:auto;margin:12px 0; }
+#previewBody pre code { background:none;border:none;padding:0;font-size:12.5px;line-height:1.65; }
+#previewBody strong { color:var(--text-bright); }
+#previewBody a { color:var(--accent2); }
+#previewBody ul,#previewBody ol { padding-left:22px;margin-bottom:12px; }
+
+.page-title { font-family:'Rajdhani',sans-serif;font-weight:900;font-size:26px;color:var(--text-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px; }
+.page-sub   { font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-dim);margin-bottom:28px; }
+
+@media (max-width:900px) {
+  .admin-layout { grid-template-columns:1fr; }
+  .editor-grid  { grid-template-columns:1fr; }
+  .admin-nav { display:none; }
+  .admin-main { padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="../index.html">Ethical<span>Hacking</span> <span style="font-size:11px;letter-spacing:2px;color:var(--text-dim);margin-left:10px;font-weight:400;">ADMIN</span></a>
+  <nav class="nav">
+    <a href="../index.html">← View Site</a>
+    <a href="#" onclick="doLogout();return false;" style="color:var(--red);">Logout</a>
+  </nav>
+</div>
+
+<div class="admin-layout">
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Content</div>
+    <a class="admin-nav-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="admin-nav-link active" href="articles.html"><span class="icon">📝</span> Articles</a>
+    <a class="admin-nav-link" href="modules.html"><span class="icon">📦</span> Modules</a>
+    <div class="admin-nav-section">Site</div>
+    <a class="admin-nav-link" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+    <a class="admin-nav-link" href="import-export.html"><span class="icon">💾</span> Backup / Restore</a>
+  </nav>
+
+  <main class="admin-main">
+    <div class="page-title" id="pageTitle">New Article</div>
+    <div class="page-sub">Write your tutorial content using HTML. Use the toolbar for quick formatting.</div>
+
+    <div class="editor-grid">
+      <!-- Left: editor -->
+      <div>
+        <!-- Meta fields -->
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="artTitle" placeholder="Article title">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Module</label>
+            <select class="form-select" id="artModule"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" id="artDifficulty">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Tags (comma-sep)</label>
+            <input class="form-input" id="artTags" placeholder="c++, win32, asm">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (minutes)</label>
+            <input class="form-input" type="number" id="artDuration" value="10" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order</label>
+            <input class="form-input" type="number" id="artOrder" value="1" min="1">
+          </div>
+        </div>
+
+        <!-- HTML Toolbar -->
+        <div class="editor-toolbar">
+          <button class="tb-btn" onclick="wrap('<h2>','</h2>')">H2</button>
+          <button class="tb-btn" onclick="wrap('<h3>','</h3>')">H3</button>
+          <div class="tb-sep"></div>
+          <button class="tb-btn" onclick="wrap('<p>','</p>')"><b>¶</b> Para</button>
+          <button class="tb-btn" onclick="wrap('<strong>','</strong>')"><b>Bold</b></button>
+          <button class="tb-btn" onclick="wrap('<em>','</em>')"><em>Italic</em></button>
+          <button class="tb-btn" onclick="wrap('<code>','</code>')">code</button>
+          <div class="tb-sep"></div>
+          <button class="tb-btn" onclick="insertCodeBlock()">pre/code</button>
+          <button class="tb-btn" onclick="insertList()">ul list</button>
+          <button class="tb-btn" onclick="insertOL()">ol list</button>
+          <button class="tb-btn" onclick="insertLink()">link</button>
+          <button class="tb-btn" onclick="wrap('<blockquote>','</blockquote>')">quote</button>
+        </div>
+        <textarea id="contentEditor" placeholder="Write your article HTML here…" oninput="updatePreview()"></textarea>
+
+        <!-- Publish controls -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--text-dim);">
+            <input type="checkbox" id="artPublished" style="width:16px;height:16px;accent-color:var(--accent);">
+            Publish (visible to readers)
+          </label>
+          <div style="display:flex;gap:10px;">
+            <a class="btn btn-ghost" href="articles.html">Cancel</a>
+            <button class="btn btn-accent" onclick="saveArticle()">Save Article</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: preview + tips -->
+      <div>
+        <div class="preview-panel">
+          <div class="preview-header">
+            Live Preview
+            <span style="font-size:10px;color:var(--text-dim);font-weight:400;">Updates as you type</span>
+          </div>
+          <div id="previewBody"></div>
+        </div>
+
+        <div class="card mt-lg">
+          <div class="card-header">HTML Quick Reference</div>
+          <div class="card-body" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:var(--text-dim);">
+            &lt;h2&gt;Section heading&lt;/h2&gt;<br>
+            &lt;h3&gt;Sub heading&lt;/h3&gt;<br>
+            &lt;p&gt;Paragraph text&lt;/p&gt;<br>
+            &lt;strong&gt;Bold&lt;/strong&gt;<br>
+            &lt;em&gt;Italic&lt;/em&gt;<br>
+            &lt;code&gt;inline code&lt;/code&gt;<br>
+            &lt;pre&gt;&lt;code&gt;block&lt;/code&gt;&lt;/pre&gt;<br>
+            &lt;ul&gt;&lt;li&gt;item&lt;/li&gt;&lt;/ul&gt;<br>
+            &lt;a href="…"&gt;link&lt;/a&gt;
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+<script src="../js/store.js"></script>
+<script>
+if (!EH.checkAuth()) { location.href = 'login.html'; }
+function doLogout() { EH.logout(); location.href = 'login.html'; }
+
+const params = new URLSearchParams(location.search);
+const editId = params.get('id');
+let currentArt = null;
+
+// Populate modules dropdown
+const modules = EH.getModules();
+const modSel = document.getElementById('artModule');
+modules.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m.id;
+  opt.textContent = m.title;
+  modSel.appendChild(opt);
+});
+
+// Load existing article
+if (editId) {
+  currentArt = EH.getArticleById(editId);
+  if (currentArt) {
+    document.getElementById('pageTitle').textContent = 'Edit Article';
+    document.getElementById('artTitle').value     = currentArt.title;
+    document.getElementById('artModule').value    = currentArt.moduleId;
+    document.getElementById('artDifficulty').value= currentArt.difficulty;
+    document.getElementById('artTags').value      = (currentArt.tags || []).join(', ');
+    document.getElementById('artDuration').value  = currentArt.duration;
+    document.getElementById('artOrder').value     = currentArt.order;
+    document.getElementById('artPublished').checked = currentArt.published;
+    document.getElementById('contentEditor').value  = currentArt.content || '';
+    updatePreview();
+  }
+}
+
+function updatePreview() {
+  document.getElementById('previewBody').innerHTML = document.getElementById('contentEditor').value;
+}
+
+// Toolbar helpers
+function wrap(open, close) {
+  const ta = document.getElementById('contentEditor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  const replacement = open + (sel || 'text') + close;
+  ta.value = ta.value.substring(0, s) + replacement + ta.value.substring(e);
+  ta.selectionStart = s + open.length;
+  ta.selectionEnd   = s + open.length + (sel || 'text').length;
+  ta.focus();
+  updatePreview();
+}
+
+function insertCodeBlock() {
+  const ta = document.getElementById('contentEditor');
+  const s  = ta.selectionStart;
+  const snippet = '\n<pre><code>// your code here\n</code></pre>\n';
+  ta.value = ta.value.substring(0, s) + snippet + ta.value.substring(s);
+  updatePreview();
+}
+function insertList() {
+  const ta = document.getElementById('contentEditor');
+  const s  = ta.selectionStart;
+  const snippet = '\n<ul>\n  <li>Item one</li>\n  <li>Item two</li>\n</ul>\n';
+  ta.value = ta.value.substring(0, s) + snippet + ta.value.substring(s);
+  updatePreview();
+}
+function insertOL() {
+  const ta = document.getElementById('contentEditor');
+  const s  = ta.selectionStart;
+  const snippet = '\n<ol>\n  <li>Step one</li>\n  <li>Step two</li>\n</ol>\n';
+  ta.value = ta.value.substring(0, s) + snippet + ta.value.substring(s);
+  updatePreview();
+}
+function insertLink() {
+  const url = prompt('URL:','https://');
+  if (!url) return;
+  const ta  = document.getElementById('contentEditor');
+  const s   = ta.selectionStart, end = ta.selectionEnd;
+  const sel = ta.value.substring(s, end) || 'link text';
+  const snippet = `<a href="${url}" target="_blank">${sel}</a>`;
+  ta.value = ta.value.substring(0, s) + snippet + ta.value.substring(end);
+  updatePreview();
+}
+
+function saveArticle() {
+  const title = document.getElementById('artTitle').value.trim();
+  if (!title) { showToast('Title is required.','error'); return; }
+  if (!document.getElementById('artModule').value) { showToast('Please select a module.','error'); return; }
+
+  const tags = document.getElementById('artTags').value
+    .split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+
+  const art = {
+    id:         editId || EH.newArticleId(),
+    title,
+    slug:       EH.slugify(title),
+    moduleId:   document.getElementById('artModule').value,
+    difficulty: document.getElementById('artDifficulty').value,
+    tags,
+    duration:   parseInt(document.getElementById('artDuration').value) || 10,
+    order:      parseInt(document.getElementById('artOrder').value) || 1,
+    published:  document.getElementById('artPublished').checked,
+    content:    document.getElementById('contentEditor').value,
+    createdAt:  currentArt?.createdAt || new Date().toISOString(),
+    updatedAt:  new Date().toISOString(),
+  };
+
+  EH.saveArticle(art);
+  showToast('Article saved!');
+  setTimeout(() => { location.href = 'articles.html'; }, 1200);
+}
+</script>
+</body>
+</html>
